@@ -7,21 +7,18 @@ fnames = []
 attributes = []
 
 #index positions
-posTitle = 0
-posStart = 1
-posEnd = 2
 
 title = ''
 tStart = 0
 tEnd = 0
 
-ipath = r'C:/FTEST/inputT/'
-#alternatively ipath = r'C:\FTEST\test samples' "\\"    becaquse python can't handle a single backslash even in a string literal
-opath = r'C:/FTEST/outputT/'
+iPath = r'C:/FTEST/inputT/'
+#alternatively ipath = r'C:\FTEST\test samples' "\\"    because python can't handle a single backslash even in a string literal
+oPath = r'C:/FTEST/outputT/'
 encPath = r'C:\FTEST\\' #path to ffmpeg, unused
 
 #read the filenames into an array
-for (dpath, dnames, filenames) in walk(ipath):
+for (dpath, dnames, filenames) in walk(iPath):
     for filename in filenames:
         attributes.append((filename.replace('.',' ')).split(" "))   #clean this up and get rid of the flv portion, find a better way to collect file name
 
@@ -33,23 +30,19 @@ for (dpath, dnames, filenames) in walk(ipath):
 #using the shell = True flag is dangerous as it creates a vector for SHELL INJECTION and should be improved at a later time
 
 for (title, tStart, tEnd, fType) in attributes:
-    print("title, tstart, tEnd, tType")
-    print(title, tStart, tEnd, fType)
-    fInPath = ipath + title + " " + tStart + " " + tEnd +'.'+fType 
-    attString = " -i " + '"' + fInPath + '"' + " -ss {} -to {}   -an -c:v libvpx -pix_fmt yuv420p -threads 12 -slices 8 -f webm -metadata title= {} -qmin 28 -crf 30 -qmax 32 -qcomp 1 -b:v 0   {}".format(tStart,tEnd, title, opath + title)
+    
 
-    Arguments =  -f nut -i pipe:0   -c:v libvpx -pix_fmt yuv420p -threads 12 -slices 8 -metadata title="MetaTitle" -ac 2 -c:a libvorbis -qmin 16 -crf 22 -qmax 28 -qcomp 1 -b:v 0 -qscale:a 10 -f webm -y "D:\videos\converted\NewFileName.webm"
-    ffmpegInput =  -ss tStart -i fInPath 
-    print("attString: ")
-    print(attString)
+    # -i "C:/FTEST/inputT/g2tailbreak 00 06.flv" -ss 00 -to 06 -c:v libvpx -pix_fmt yuv420p -threads 12 -slices 8 -metadata title="g2tailbreak" -ac 2 -c:a libvorbis -qmin 16 -crf 22 -qmax 28 -qcomp 1 -b:v 0 -qscale:a 10 -f webm + "C:\FTEST\outputT\g2tailbreak.webm"
     # ***-y overwrites output file without asking removed during testing***
-
-    subprocess.call(encPath + 'ffmpeg' + attString , shell = True)
-
-    print("subprocess call string: encPath + 'ffmpeg.exe' = attString")
-    print(encPath + 'ffmpeg.exe' + attString)
-
+    
+    qualitySettings = ' -c:v libvpx -pix_fmt yuv420p -threads 12 -slices 8 -metadata title="{}" -ac 2 -c:a libvorbis -qmin 16 -crf 22 -qmax 28 -qcomp 1 -b:v 0 -qscale:a 10 -f webm '.format(title)
+    attString =  " -i " + '"' + iPath + title + " " + tStart + " " + tEnd +'.'+fType + '"' + " -ss " + tStart + " -to " + tEnd + qualitySettings + '"' + oPath + title + ".webm" + '"' 
+    
+    
+    
     print("Now converting {} cutting from {} to {} ".format(title, tStart, tEnd))
+
+    subprocess.call(encPath + 'ffmpeg' + attString , shell = True)  
     
 
 print("All files converted, have a nice day :) ")
